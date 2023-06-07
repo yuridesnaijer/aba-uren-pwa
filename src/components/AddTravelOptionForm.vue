@@ -20,7 +20,7 @@
 
 <script lang="ts">
 import { LOCAL_STORAGE_KEY_TRAVEL_OPTIONS } from '@/Globals'
-import { TTravelOption } from '@/views/WriteHoursView.vue'
+import { type TTravelOption } from '@/views/WriteHoursView.vue'
 
 export default {
   name: 'AddTravelOptionForm',
@@ -35,7 +35,7 @@ export default {
   methods: {
     addTravelOption() {
       const existingTravelOptions: TTravelOption[] =
-        JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY_TRAVEL_OPTIONS)) || []
+        JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY_TRAVEL_OPTIONS) || '') || []
 
       const travelOption: TTravelOption = {
         ...this.travelOption,

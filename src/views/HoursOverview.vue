@@ -40,7 +40,7 @@
 
 <script lang="ts">
 import { LOCAL_STORAGE_KEY_HOUR_ENTRY } from '@/Globals'
-import { TTravelOption } from '@/views/WriteHoursView.vue'
+import { type TTravelOption } from '@/views/WriteHoursView.vue'
 
 type TTime = {
   hours: number
@@ -60,7 +60,7 @@ export default {
   name: 'HoursOverview',
   computed: {
     writtenHours(): THourEntry[] {
-      return JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY_HOUR_ENTRY))
+      return JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY_HOUR_ENTRY) || '')
     }
   },
   methods: {

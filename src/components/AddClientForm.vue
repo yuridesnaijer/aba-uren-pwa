@@ -26,7 +26,7 @@ export default {
   methods: {
     addClient() {
       const existingClients: string[] =
-        JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY_CLIENTS)) || []
+        JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY_CLIENTS) || '') || []
 
       window.localStorage.setItem(
         LOCAL_STORAGE_KEY_CLIENTS,
