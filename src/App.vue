@@ -8,12 +8,12 @@ import { RouterView } from 'vue-router'
       <RouterView />
     </v-main>
     <v-bottom-navigation>
-      <v-btn href="/" value="recent">
+      <v-btn @click="$router.push('/')" value="recent">
         <v-icon>mdi-history</v-icon>
         Overzicht
       </v-btn>
 
-      <v-btn href="/schrijven" value="favorites">
+      <v-btn @click="$router.push('/schrijven')" value="favorites">
         <v-icon>mdi-heart</v-icon>
         Uren schrijven
       </v-btn>
