@@ -25,13 +25,13 @@ export default {
   },
   methods: {
     addClient() {
-      const existingClients: string[] =
-        JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY_CLIENTS) || '') || []
+      let data = [this.client]
+      const existingClients = window.localStorage.getItem(LOCAL_STORAGE_KEY_CLIENTS)
+      if (existingClients) {
+        data = [this.client, ...existingClients]
+      }
 
-      window.localStorage.setItem(
-        LOCAL_STORAGE_KEY_CLIENTS,
-        JSON.stringify([...existingClients, this.client])
-      )
+      window.localStorage.setItem(LOCAL_STORAGE_KEY_CLIENTS, JSON.stringify(data))
       this.$emit('onSave')
     }
   }

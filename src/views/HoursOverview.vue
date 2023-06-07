@@ -60,7 +60,7 @@ export default {
   name: 'HoursOverview',
   computed: {
     writtenHours(): THourEntry[] {
-      return JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY_HOUR_ENTRY) || '')
+      return JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY_HOUR_ENTRY) || '[]')
     }
   },
   methods: {

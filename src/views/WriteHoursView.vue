@@ -167,10 +167,11 @@ export default defineComponent({
   methods: {
     updateTravelOptions() {
       this.travelOptions =
-        JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY_TRAVEL_OPTIONS) || '') || []
+        JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY_TRAVEL_OPTIONS) || '[]') || []
     },
     updateClients() {
-      this.clients = JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY_CLIENTS) || '') || []
+      this.clients =
+        JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY_CLIENTS) || '[]') || []
     },
     onTravelOptionAdded() {
       this.isTravelOptionFormOpen = false
@@ -191,7 +192,7 @@ export default defineComponent({
     },
     addHours() {
       const existingHours =
-        JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY_HOUR_ENTRY) || '') || []
+        JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY_HOUR_ENTRY) || '[]') || []
       window.localStorage.setItem(
         LOCAL_STORAGE_KEY_HOUR_ENTRY,
         JSON.stringify([...existingHours, { ...this.$data.hourEntry }])

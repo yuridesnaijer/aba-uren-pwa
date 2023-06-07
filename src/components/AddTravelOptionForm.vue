@@ -34,8 +34,9 @@ export default {
   },
   methods: {
     addTravelOption() {
-      const existingTravelOptions: TTravelOption[] =
-        JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY_TRAVEL_OPTIONS) || '') || []
+      const existingTravelOptions: TTravelOption[] = JSON.parse(
+        window.localStorage.getItem(LOCAL_STORAGE_KEY_TRAVEL_OPTIONS) || '[]'
+      )
 
       const travelOption: TTravelOption = {
         ...this.travelOption,
