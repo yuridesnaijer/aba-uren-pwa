@@ -166,12 +166,22 @@ export default defineComponent({
   },
   methods: {
     updateTravelOptions() {
-      this.travelOptions =
-        JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY_TRAVEL_OPTIONS) || '[]') || []
+      const existingTravelOptions = window.localStorage.getItem(LOCAL_STORAGE_KEY_TRAVEL_OPTIONS)
+      if (!existingTravelOptions) {
+        this.travelOptions = []
+        return
+      }
+
+      this.travelOptions = JSON.parse(existingTravelOptions)
     },
     updateClients() {
-      this.clients =
-        JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY_CLIENTS) || '[]') || []
+      const existingClients = window.localStorage.getItem(LOCAL_STORAGE_KEY_CLIENTS)
+      if (!existingClients) {
+        this.clients = []
+        return
+      }
+
+      this.clients = JSON.parse(existingClients)
     },
     onTravelOptionAdded() {
       this.isTravelOptionFormOpen = false
@@ -191,11 +201,17 @@ export default defineComponent({
       }
     },
     addHours() {
-      const existingHours =
-        JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY_HOUR_ENTRY) || '[]') || []
+      const existingHours = window.localStorage.getItem(LOCAL_STORAGE_KEY_HOUR_ENTRY)
+
+      if (!existingHours) {
+        JSON.stringify([{ ...this.$data.hourEntry }])
+        return
+      }
+
+      const parsedExistingHours = JSON.parse(existingHours)
       window.localStorage.setItem(
         LOCAL_STORAGE_KEY_HOUR_ENTRY,
-        JSON.stringify([...existingHours, { ...this.$data.hourEntry }])
+        JSON.stringify([...parsedExistingHours, { ...this.$data.hourEntry }])
       )
       this.reset()
     }
