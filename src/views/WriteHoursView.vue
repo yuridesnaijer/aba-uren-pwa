@@ -203,16 +203,18 @@ export default defineComponent({
     addHours() {
       const existingHours = window.localStorage.getItem(LOCAL_STORAGE_KEY_HOUR_ENTRY)
 
-      if (!existingHours) {
-        JSON.stringify([{ ...this.$data.hourEntry }])
-        return
+      if (existingHours) {
+        window.localStorage.setItem(
+          LOCAL_STORAGE_KEY_HOUR_ENTRY,
+          JSON.stringify([...JSON.parse(existingHours), { ...this.$data.hourEntry }])
+        )
+      } else {
+        window.localStorage.setItem(
+          LOCAL_STORAGE_KEY_HOUR_ENTRY,
+          JSON.stringify([{ ...this.$data.hourEntry }])
+        )
       }
 
-      const parsedExistingHours = JSON.parse(existingHours)
-      window.localStorage.setItem(
-        LOCAL_STORAGE_KEY_HOUR_ENTRY,
-        JSON.stringify([...parsedExistingHours, { ...this.$data.hourEntry }])
-      )
       this.reset()
     }
   },
