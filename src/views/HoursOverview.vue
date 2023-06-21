@@ -27,7 +27,25 @@
                   <td>{{ formatTime(item.startTime) }}</td>
                   <td>{{ formatTime(item.endTime) }}</td>
                   <td>{{ duration(item.startTime, item.endTime) }}</td>
-                  <td>{{ item.travelOption.value }}km</td>
+                  <td>{{ item.travelOption.value }}km / {{ item.travelOption.label }}</td>
+                  <td>
+                    <v-btn color="error" @click="this.showConfirmationDialog = true"
+                      >verwijderen</v-btn
+                    >
+                    <v-dialog v-model="showConfirmationDialog">
+                      <v-card>
+                        <v-card-title>
+                          Weet je zeker dat je dit wil verwijderen Yasmin??????
+                        </v-card-title>
+                        <v-card-actions>
+                          <v-btn variant="tonal" color="error" @click="deleteHours(item.id)"
+                            >ja</v-btn
+                          >
+                          <v-btn @click="showConfirmationDialog = false">nee</v-btn>
+                        </v-card-actions>
+                      </v-card>
+                    </v-dialog>
+                  </td>
                 </tr>
               </tbody>
             </v-table>
@@ -39,36 +57,31 @@
 </template>
 
 <script lang="ts">
-import { LOCAL_STORAGE_KEY_HOUR_ENTRY } from '@/Globals'
-import { type TTravelOption } from '@/views/WriteHoursView.vue'
-
-type TTime = {
-  hours: number
-  minutes: number
-  seconds: number
-}
-
-type THourEntry = {
-  client: string
-  startTime: TTime
-  endTime: TTime
-  date: Date
-  travelOption: TTravelOption
-}
+import { THourEntry } from '@/types/THourEntry'
+import { TTime } from '@/types/TTime'
+import { LocalStorageDB } from '@/api/localStorage'
+import { getCurrentInstance } from 'vue'
 
 export default {
   name: 'HoursOverview',
-  computed: {
-    writtenHours(): THourEntry[] {
-      const existingData = window.localStorage.getItem(LOCAL_STORAGE_KEY_HOUR_ENTRY)
-      if (!existingData) {
-        return []
-      }
-
-      return JSON.parse(existingData)
+  data() {
+    return {
+      showConfirmationDialog: false,
+      writtenHours: []
     }
   },
+  created() {
+    this.updateHoursOverview()
+  },
   methods: {
+    updateHoursOverview() {
+      this.writtenHours = LocalStorageDB.GetHours()
+    },
+    deleteHours(id: string) {
+      LocalStorageDB.DeleteHours(id)
+      this.showConfirmationDialog = false
+      this.updateHoursOverview()
+    },
     formatTime(time: TTime): string {
       const hours = time.hours > 9 ? time.hours : '0' + time.hours.toString()
       const minutes = time.minutes > 9 ? time.minutes : '0' + time.minutes.toString()

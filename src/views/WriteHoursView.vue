@@ -116,13 +116,11 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import VueDatePicker from '@vuepic/vue-datepicker'
-import {
-  LOCAL_STORAGE_KEY_CLIENTS,
-  LOCAL_STORAGE_KEY_HOUR_ENTRY,
-  LOCAL_STORAGE_KEY_TRAVEL_OPTIONS
-} from '@/Globals'
+import { LOCAL_STORAGE_KEY_CLIENTS, LOCAL_STORAGE_KEY_TRAVEL_OPTIONS } from '@/Globals'
 import AddTravelOptionForm from '@/components/AddTravelOptionForm.vue'
 import AddClientForm from '@/components/AddClientForm.vue'
+import { LocalStorageDB } from '@/api/localStorage'
+import { THourEntry } from '@/types/THourEntry'
 
 export type TTravelOption = {
   label: string
@@ -201,20 +199,7 @@ export default defineComponent({
       }
     },
     addHours() {
-      const existingHours = window.localStorage.getItem(LOCAL_STORAGE_KEY_HOUR_ENTRY)
-
-      if (existingHours) {
-        window.localStorage.setItem(
-          LOCAL_STORAGE_KEY_HOUR_ENTRY,
-          JSON.stringify([...JSON.parse(existingHours), { ...this.$data.hourEntry }])
-        )
-      } else {
-        window.localStorage.setItem(
-          LOCAL_STORAGE_KEY_HOUR_ENTRY,
-          JSON.stringify([{ ...this.$data.hourEntry }])
-        )
-      }
-
+      LocalStorageDB.SetHours(this.hourEntry as THourEntry)
       this.reset()
     }
   },
