@@ -23,7 +23,7 @@
               <tbody>
                 <tr v-for="item in writtenHours" :key="item.client + item.date">
                   <td>{{ item.client }}</td>
-                  <td>{{ item.date }}</td>
+                  <td>{{ formatDate(item.date) }}</td>
                   <td>{{ formatTime(item.startTime) }}</td>
                   <td>{{ formatTime(item.endTime) }}</td>
                   <td>{{ duration(item.startTime, item.endTime) }}</td>
@@ -78,6 +78,10 @@ export default {
       LocalStorageDB.DeleteHours(id)
       this.showConfirmationDialog = false
       this.updateHoursOverview()
+    },
+    formatDate(_date: Date): string {
+      const date = new Date(_date)
+      return date.toLocaleDateString('nl-NL', { dateStyle: 'full' })
     },
     formatTime(time: TTime): string {
       const hours = time.hours > 9 ? time.hours : '0' + time.hours.toString()
