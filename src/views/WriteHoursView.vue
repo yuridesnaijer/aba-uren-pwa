@@ -199,7 +199,7 @@ export default defineComponent({
       }
     },
     addHours() {
-      LocalStorageDB.SetHours(this.hourEntry as THourEntry)
+      LocalStorageDB.SetHours(this.hourEntry as Omit<THourEntry, 'id'>)
       this.reset()
     }
   },

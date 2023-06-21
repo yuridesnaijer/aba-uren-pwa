@@ -11,7 +11,7 @@ export const LocalStorageDB = {
 
     return JSON.parse(existingHours)
   },
-  SetHours(hours: THourEntry) {
+  SetHours(hours: Omit<THourEntry, 'id'>) {
     const existingHours = this.GetHours()
     window.localStorage.setItem(
       LOCAL_STORAGE_KEY_HOUR_ENTRY,
