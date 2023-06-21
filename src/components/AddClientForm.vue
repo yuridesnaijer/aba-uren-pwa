@@ -28,7 +28,8 @@ export default {
       let data = [this.client]
       const existingClients = window.localStorage.getItem(LOCAL_STORAGE_KEY_CLIENTS)
       if (existingClients) {
-        data = [this.client, ...existingClients]
+        const parsedClients = JSON.parse(existingClients)
+        data = [this.client, ...parsedClients]
       }
 
       window.localStorage.setItem(LOCAL_STORAGE_KEY_CLIENTS, JSON.stringify(data))
