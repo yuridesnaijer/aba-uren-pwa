@@ -29,9 +29,7 @@
                   <td>{{ duration(item.startTime, item.endTime) }}</td>
                   <td>{{ item.travelOption.value }}km / {{ item.travelOption.label }}</td>
                   <td>
-                    <v-btn color="error" @click="this.showConfirmationDialog = true"
-                      >verwijderen</v-btn
-                    >
+                    <v-btn color="error" @click="showConfirmationDialog = true">verwijderen</v-btn>
                     <v-dialog v-model="showConfirmationDialog">
                       <v-card>
                         <v-card-title>
@@ -57,14 +55,13 @@
 </template>
 
 <script lang="ts">
-import { THourEntry } from '@/types/THourEntry'
-import { TTime } from '@/types/TTime'
+import type { THourEntry } from '@/types/THourEntry'
+import type { TTime } from '@/types/TTime'
 import { LocalStorageDB } from '@/api/localStorage'
-import { getCurrentInstance } from 'vue'
 
 export default {
   name: 'HoursOverview',
-  data() {
+  data(): { showConfirmationDialog: boolean; writtenHours: THourEntry[] } {
     return {
       showConfirmationDialog: false,
       writtenHours: []

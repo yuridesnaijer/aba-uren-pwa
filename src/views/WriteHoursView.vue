@@ -120,7 +120,7 @@ import { LOCAL_STORAGE_KEY_CLIENTS, LOCAL_STORAGE_KEY_TRAVEL_OPTIONS } from '@/G
 import AddTravelOptionForm from '@/components/AddTravelOptionForm.vue'
 import AddClientForm from '@/components/AddClientForm.vue'
 import { LocalStorageDB } from '@/api/localStorage'
-import { THourEntry } from '@/types/THourEntry'
+import type { THourEntry } from '@/types/THourEntry'
 
 export type TTravelOption = {
   label: string
@@ -199,7 +199,10 @@ export default defineComponent({
       }
     },
     addHours() {
-      LocalStorageDB.SetHours(this.hourEntry as Omit<THourEntry, 'id'>)
+      //TODO: figure out how to type this
+      // @ts-ignore
+      const hours: THourEntry = this.hourEntry
+      LocalStorageDB.SetHours(hours)
       this.reset()
     }
   },

@@ -1,5 +1,5 @@
-import { TTravelOption } from '@/views/WriteHoursView.vue'
-import { TTime } from '@/types/TTime'
+import type { TTravelOption } from '@/views/WriteHoursView.vue'
+import type { TTime } from '@/types/TTime'
 
 export type THourEntry = {
   id: string

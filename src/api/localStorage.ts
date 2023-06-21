@@ -1,4 +1,4 @@
-import { THourEntry } from '@/types/THourEntry'
+import type { THourEntry } from '@/types/THourEntry'
 import { LOCAL_STORAGE_KEY_HOUR_ENTRY } from '@/Globals'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -11,11 +11,11 @@ export const LocalStorageDB = {
 
     return JSON.parse(existingHours)
   },
-  SetHours(hours: Omit<THourEntry, 'id'>) {
+  SetHours(hours: THourEntry) {
     const existingHours = this.GetHours()
     window.localStorage.setItem(
       LOCAL_STORAGE_KEY_HOUR_ENTRY,
-      JSON.stringify([...existingHours, { id: uuidv4(), ...hours }])
+      JSON.stringify([...existingHours, { ...hours, id: uuidv4() }])
     )
   },
   DeleteHours(id: string) {
