@@ -26,7 +26,7 @@
                   <td>{{ formatDate(item.date) }}</td>
                   <td>{{ formatTime(item.startTime) }}</td>
                   <td>{{ formatTime(item.endTime) }}</td>
-                  <td>{{ duration(item.startTime, item.endTime) }}</td>
+                  <td>{{ durationString(duration(item.startTime, item.endTime)) }}</td>
                   <td>{{ item.travelOption.value }}km / {{ item.travelOption.label }}</td>
                   <td>
                     <v-btn color="error" @click="showConfirmationDialog = true">verwijderen</v-btn>
@@ -48,6 +48,14 @@
               </tbody>
             </v-table>
           </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <v-card>
+          <v-card-title>Totaal uren:</v-card-title>
+          <v-card-text>{{ durationString(totalWrittenHours()) }}</v-card-text>
         </v-card>
       </v-col>
     </v-row>
@@ -88,7 +96,40 @@ export default {
       const minutes = time.minutes > 9 ? time.minutes : '0' + time.minutes.toString()
       return `${hours}:${minutes}`
     },
-    duration(startTime: TTime, endTime: TTime): string {
+    totalWrittenHours(): TTime {
+      const totalTime: TTime = {
+        hours: 0,
+        minutes: 0,
+        seconds: 0
+      }
+
+      this.writtenHours.forEach((currentValue: THourEntry) => {
+        const currentTime: TTime = this.duration(currentValue.startTime, currentValue.endTime)
+        totalTime.hours += currentTime.hours
+        totalTime.minutes += currentTime.minutes
+        totalTime.seconds += currentTime.seconds
+      }, totalTime)
+
+      return this.secondsToTime(this.timeToSeconds(totalTime))
+    },
+    timeToSeconds(time: TTime): number {
+      let seconds = 0
+      seconds += time.seconds
+      seconds += time.minutes * 60
+      seconds += time.hours * 60 * 60
+      return seconds
+    },
+    secondsToTime(seconds: number): TTime {
+      return {
+        seconds: 0,
+        minutes: (seconds % (60 * 60)) / 60,
+        hours: Math.floor(seconds / (60 * 60))
+      }
+    },
+    durationString(duration: TTime): string {
+      return `${duration.hours}:${duration.minutes}`
+    },
+    duration(startTime: TTime, endTime: TTime): TTime {
       const start = new Date()
       start.setHours(startTime.hours)
       start.setMinutes(startTime.minutes)
@@ -101,8 +142,11 @@ export default {
       const minDec = hoursDec % 1
       const hours = hoursDec - minDec
       const minutes = Math.round(minDec * 60)
-
-      return `${hours}:${minutes}`
+      return {
+        hours,
+        minutes,
+        seconds: 0
+      }
     }
   }
 }
