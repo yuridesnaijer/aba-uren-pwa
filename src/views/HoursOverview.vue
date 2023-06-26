@@ -23,10 +23,10 @@
               <tbody>
                 <tr v-for="item in writtenHours" :key="item.client + item.date">
                   <td>{{ item.client }}</td>
-                  <td>{{ formatDate(item.date) }}</td>
-                  <td>{{ formatTime(item.startTime) }}</td>
-                  <td>{{ formatTime(item.endTime) }}</td>
-                  <td>{{ durationString(duration(item.startTime, item.endTime)) }}</td>
+                  <td>{{ $date.formatDate(item.date) }}</td>
+                  <td>{{ $date.formatTime(item.startTime) }}</td>
+                  <td>{{ $date.formatTime(item.endTime) }}</td>
+                  <td>{{ $date.durationString($date.duration(item.startTime, item.endTime)) }}</td>
                   <td>{{ item.travelOption.value }}km / {{ item.travelOption.label }}</td>
                   <td>
                     <v-btn color="error" @click="showConfirmationDialog = true">verwijderen</v-btn>
@@ -54,7 +54,7 @@
     <v-row>
       <v-col>
         <v-card>
-          <v-card-title>Totaal uren:{{ durationString(totalWrittenHours()) }} </v-card-title>
+          <v-card-title>Totaal uren:{{ $date.durationString(totalWrittenHours()) }} </v-card-title>
           <v-card-text
             ><v-table>
               <thead>
@@ -66,7 +66,7 @@
               <tbody>
                 <tr v-for="(value, key) in totalWrittenHoursInSecondsPerClient()">
                   <td>{{ key }}</td>
-                  <td>{{ durationString(secondsToTime(value)) }}</td>
+                  <td>{{ $date.durationString($date.secondsToTime(value)) }}</td>
                 </tr>
               </tbody></v-table
             ></v-card-text
@@ -81,6 +81,7 @@
 import type { THourEntry } from '@/types/THourEntry'
 import type { TTime } from '@/types/TTime'
 import { LocalStorageDB } from '@/api/localStorage'
+import { DateUtils } from '@/utils/date/dateUtils'
 
 export default {
   name: 'HoursOverview',
@@ -102,22 +103,14 @@ export default {
       this.showConfirmationDialog = false
       this.updateHoursOverview()
     },
-    formatDate(_date: Date): string {
-      const date = new Date(_date)
-      return date.toLocaleDateString('nl-NL', { dateStyle: 'full' })
-    },
-    formatTime(time: TTime): string {
-      const hours = time.hours > 9 ? time.hours : '0' + time.hours.toString()
-      const minutes = time.minutes > 9 ? time.minutes : '0' + time.minutes.toString()
-      return `${hours}:${minutes}`
-    },
     totalWrittenHoursInSecondsPerClient(): { [key: string]: number } {
       const accumulator: { [key: string]: number } = {}
       return this.writtenHours.reduce((accumulator, currentValue: THourEntry) => {
         const value =
           accumulator[currentValue.client] !== undefined ? accumulator[currentValue.client] : 0
         accumulator[currentValue.client] =
-          value + this.timeToSeconds(this.duration(currentValue.startTime, currentValue.endTime))
+          value +
+          DateUtils.timeToSeconds(DateUtils.duration(currentValue.startTime, currentValue.endTime))
         return accumulator
       }, accumulator)
     },
@@ -129,49 +122,13 @@ export default {
       }
 
       this.writtenHours.forEach((currentValue: THourEntry) => {
-        const currentTime: TTime = this.duration(currentValue.startTime, currentValue.endTime)
+        const currentTime: TTime = DateUtils.duration(currentValue.startTime, currentValue.endTime)
         totalTime.hours += currentTime.hours
         totalTime.minutes += currentTime.minutes
         totalTime.seconds += currentTime.seconds
       }, totalTime)
 
-      return this.secondsToTime(this.timeToSeconds(totalTime))
-    },
-    timeToSeconds(time: TTime): number {
-      let seconds = 0
-      seconds += time.seconds
-      seconds += time.minutes * 60
-      seconds += time.hours * 60 * 60
-      return seconds
-    },
-    secondsToTime(seconds: number): TTime {
-      return {
-        seconds: 0,
-        minutes: (seconds % (60 * 60)) / 60,
-        hours: Math.floor(seconds / (60 * 60))
-      }
-    },
-    durationString(duration: TTime): string {
-      return `${duration.hours}:${duration.minutes}`
-    },
-    duration(startTime: TTime, endTime: TTime): TTime {
-      const start = new Date()
-      start.setHours(startTime.hours)
-      start.setMinutes(startTime.minutes)
-
-      const end = new Date()
-      end.setHours(endTime.hours)
-      end.setMinutes(endTime.minutes)
-
-      const hoursDec = (end.getTime() - start.getTime()) / 1000 / 60 / 60
-      const minDec = hoursDec % 1
-      const hours = hoursDec - minDec
-      const minutes = Math.round(minDec * 60)
-      return {
-        hours,
-        minutes,
-        seconds: 0
-      }
+      return DateUtils.secondsToTime(DateUtils.timeToSeconds(totalTime))
     }
   }
 }
