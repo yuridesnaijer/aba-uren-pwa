@@ -112,13 +112,14 @@ export default {
       return `${hours}:${minutes}`
     },
     totalWrittenHoursInSecondsPerClient(): { [key: string]: number } {
+      const accumulator: { [key: string]: number } = {}
       return this.writtenHours.reduce((accumulator, currentValue: THourEntry) => {
         const value =
           accumulator[currentValue.client] !== undefined ? accumulator[currentValue.client] : 0
         accumulator[currentValue.client] =
           value + this.timeToSeconds(this.duration(currentValue.startTime, currentValue.endTime))
         return accumulator
-      }, {})
+      }, accumulator)
     },
     totalWrittenHours(): TTime {
       const totalTime: TTime = {
