@@ -54,8 +54,23 @@
     <v-row>
       <v-col>
         <v-card>
-          <v-card-title>Totaal uren:</v-card-title>
-          <v-card-text>{{ durationString(totalWrittenHours()) }}</v-card-text>
+          <v-card-title>Totaal uren:{{ durationString(totalWrittenHours()) }} </v-card-title>
+          <v-card-text
+            ><v-table>
+              <thead>
+                <tr>
+                  <th class="text-left">Client</th>
+                  <th class="text-left">Aantal uren</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(value, key) in totalWrittenHoursInSecondsPerClient()">
+                  <td>{{ key }}</td>
+                  <td>{{ durationString(secondsToTime(value)) }}</td>
+                </tr>
+              </tbody></v-table
+            ></v-card-text
+          >
         </v-card>
       </v-col>
     </v-row>
@@ -95,6 +110,15 @@ export default {
       const hours = time.hours > 9 ? time.hours : '0' + time.hours.toString()
       const minutes = time.minutes > 9 ? time.minutes : '0' + time.minutes.toString()
       return `${hours}:${minutes}`
+    },
+    totalWrittenHoursInSecondsPerClient(): { [key: string]: number } {
+      return this.writtenHours.reduce((accumulator, currentValue: THourEntry) => {
+        const value =
+          accumulator[currentValue.client] !== undefined ? accumulator[currentValue.client] : 0
+        accumulator[currentValue.client] =
+          value + this.timeToSeconds(this.duration(currentValue.startTime, currentValue.endTime))
+        return accumulator
+      }, {})
     },
     totalWrittenHours(): TTime {
       const totalTime: TTime = {
