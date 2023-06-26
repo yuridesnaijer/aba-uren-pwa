@@ -93,8 +93,14 @@ export default {
   },
   created() {
     this.updateHoursOverview()
+    this.sortWrittenHours()
   },
   methods: {
+    sortWrittenHours() {
+      this.writtenHours = this.writtenHours.sort((a: THourEntry, b: THourEntry) => {
+        return new Date(a.date) - new Date(b.date)
+      })
+    },
     updateHoursOverview() {
       this.writtenHours = LocalStorageDB.GetHours()
     },
