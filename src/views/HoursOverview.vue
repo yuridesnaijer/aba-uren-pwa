@@ -1,6 +1,30 @@
 <template>
   <v-container>
     <v-row>
+      Selecteer maand:
+      <v-select
+        outlined
+        v-model="selectedMonth"
+        item-value="index"
+        item-title="label"
+        :items="[
+          { index: 0, label: 'Januari' },
+          { index: 1, label: 'Februari' },
+          { index: 2, label: 'Maart' },
+          { index: 3, label: 'April' },
+          { index: 4, label: 'Mei' },
+          { index: 5, label: 'Juni' },
+          { index: 6, label: 'Juli' },
+          { index: 7, label: 'Augustus' },
+          { index: 8, label: 'September' },
+          { index: 9, label: 'Oktober' },
+          { index: 10, label: 'November' },
+          { index: 11, label: 'December' }
+        ]"
+      >
+      </v-select>
+    </v-row>
+    <v-row>
       <v-col>
         <v-card>
           <v-card-title class="text-center">
@@ -21,7 +45,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in writtenHours" :key="item.client + item.date">
+                <tr v-for="item in filteredHoursOverview" :key="item.client + item.date">
                   <td>{{ item.client }}</td>
                   <td>{{ $date.formatDate(item.date) }}</td>
                   <td>{{ $date.formatTime(item.startTime) }}</td>
@@ -54,7 +78,9 @@
     <v-row>
       <v-col>
         <v-card>
-          <v-card-title>Totaal uren:{{ $date.durationString(totalWrittenHours()) }} </v-card-title>
+          <v-card-title
+            >Totaal uren:{{ $date.durationString(totalWrittenHours(filteredHoursOverview)) }}
+          </v-card-title>
           <v-card-text
             ><v-table>
               <thead>
@@ -64,7 +90,9 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(value, key) in totalWrittenHoursInSecondsPerClient()">
+                <tr
+                  v-for="(value, key) in totalWrittenHoursInSecondsPerClient(filteredHoursOverview)"
+                >
                   <td>{{ key }}</td>
                   <td>{{ $date.durationString($date.secondsToTime(value)) }}</td>
                 </tr>
@@ -85,8 +113,9 @@ import { DateUtils } from '@/utils/date/dateUtils'
 
 export default {
   name: 'HoursOverview',
-  data(): { showConfirmationDialog: boolean; writtenHours: THourEntry[] } {
+  data(): { selectedMonth: number; showConfirmationDialog: boolean; writtenHours: THourEntry[] } {
     return {
+      selectedMonth: new Date().getMonth(),
       showConfirmationDialog: false,
       writtenHours: []
     }
@@ -94,6 +123,15 @@ export default {
   created() {
     this.updateHoursOverview()
     this.sortWrittenHours()
+  },
+  computed: {
+    filteredHoursOverview: function (): THourEntry[] {
+      return this.writtenHours.filter((entry: THourEntry) => {
+        if (new Date(entry.date).getMonth() === this.selectedMonth) {
+          return entry
+        }
+      })
+    }
   },
   methods: {
     sortWrittenHours() {
@@ -109,9 +147,9 @@ export default {
       this.showConfirmationDialog = false
       this.updateHoursOverview()
     },
-    totalWrittenHoursInSecondsPerClient(): { [key: string]: number } {
+    totalWrittenHoursInSecondsPerClient(hourEntries: THourEntry[]): { [key: string]: number } {
       const accumulator: { [key: string]: number } = {}
-      return this.writtenHours.reduce((accumulator, currentValue: THourEntry) => {
+      return hourEntries.reduce((accumulator, currentValue: THourEntry) => {
         const value =
           accumulator[currentValue.client] !== undefined ? accumulator[currentValue.client] : 0
         accumulator[currentValue.client] =
@@ -120,14 +158,14 @@ export default {
         return accumulator
       }, accumulator)
     },
-    totalWrittenHours(): TTime {
+    totalWrittenHours(hourEntries: THourEntry[]): TTime {
       const totalTime: TTime = {
         hours: 0,
         minutes: 0,
         seconds: 0
       }
 
-      this.writtenHours.forEach((currentValue: THourEntry) => {
+      hourEntries.forEach((currentValue: THourEntry) => {
         const currentTime: TTime = DateUtils.duration(currentValue.startTime, currentValue.endTime)
         totalTime.hours += currentTime.hours
         totalTime.minutes += currentTime.minutes

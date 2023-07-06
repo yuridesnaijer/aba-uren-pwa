@@ -1,4 +1,3 @@
-import { TTime } from '@/types/TTime'
 import { DateUtils } from '@/utils/date/dateUtils'
 
 export default {
