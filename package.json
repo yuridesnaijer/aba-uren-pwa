@@ -14,8 +14,11 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@types/firebase": "^3.2.1",
     "@vuepic/vue-datepicker": "^5.1.2",
     "date-fns": "^2.30.0",
+    "firebase": "^10.1.0",
+    "firebaseui": "^6.1.0",
     "pinia": "^2.0.36",
     "uuid": "^9.0.0",
     "vue": "^3.3.2",

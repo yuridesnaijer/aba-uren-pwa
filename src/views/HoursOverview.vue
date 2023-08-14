@@ -29,7 +29,7 @@
         <v-card>
           <v-card-title class="text-center">
             <span class="text-pink text-h6">
-              Yasmin's uren overzicht <v-icon icon="mdi-heart"></v-icon>
+              {{ currentUserName }} uren overzicht <v-icon icon="mdi-heart"></v-icon>
             </span>
           </v-card-title>
           <v-card-text>
@@ -110,6 +110,7 @@ import type { THourEntry } from '@/types/THourEntry'
 import type { TTime } from '@/types/TTime'
 import { LocalStorageDB } from '@/api/localStorage'
 import { DateUtils } from '@/utils/date/dateUtils'
+import { useAuthStore } from '@/stores/authStore'
 
 export default {
   name: 'HoursOverview',
@@ -125,6 +126,13 @@ export default {
     this.sortWrittenHours()
   },
   computed: {
+    currentUserName: function (): string {
+      const store = useAuthStore()
+      if (!store.user) {
+        return 'no user'
+      }
+      return store.user?.displayName + "'s"
+    },
     filteredHoursOverview: function (): THourEntry[] {
       return this.writtenHours.filter((entry: THourEntry) => {
         if (new Date(entry.date).getMonth() === this.selectedMonth) {
