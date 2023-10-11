@@ -1,8 +1,8 @@
 import { initializeApp } from 'firebase/app'
-import { getFirestore } from 'firebase/firestore'
-import { collection, addDoc } from 'firebase/firestore'
+import { getFirestore, doc, getDoc, setDoc, collection } from 'firebase/firestore'
+import { THourEntry } from '@/types/THourEntry'
 
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: 'AIzaSyC82Fz-65X0hPMQfd8QObR8N09CBinaBKM',
   authDomain: 'aba-admin-abf9a.firebaseapp.com',
   projectId: 'aba-admin-abf9a',
@@ -12,13 +12,35 @@ const firebaseConfig = {
   measurementId: 'G-JRKHFNHEL9'
 }
 
-// const app = initializeApp(firebaseConfig)
-// const db = getFirestore()
-//
-// export const createUser = async () => {
-//   const docRef = await addDoc(collection(db, 'users'), {
-//     userName: 'Yuri'
-//   })
-//
-//   console.log('docRef.id', docRef.id)
-// }
+export abstract class firebaseDB {
+  private static app
+  private static db
+
+  // public GetHours(): THourEntry[] {},
+  public static async initializeUser(user: any) {
+    // console.log('docSnap', docSnap)
+    this.app = initializeApp(firebaseConfig)
+    this.db = getFirestore(this.app)
+
+    console.log('user', user)
+    const docRef = doc(this.db, 'user', '/' + user.uid)
+    const docSnap = await getDoc(docRef)
+
+    if (docSnap.exists()) {
+      console.log('Document data:', docSnap.data())
+    } else {
+      // docSnap.data() will be undefined in this case
+      console.log('No such document!')
+      await this.createUser(user)
+    }
+  }
+  static async createUser(user: any) {
+    const usersRef = collection(this.db, 'users')
+    await setDoc(doc(usersRef, user.uid), {
+      user: { id: user.uid, displayName: user.displayName },
+      hours: [],
+      travelOptions: [],
+      clients: []
+    })
+  }
+}
