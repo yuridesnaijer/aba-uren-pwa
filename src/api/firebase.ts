@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app'
 import { getFirestore, doc, getDoc, setDoc, collection } from 'firebase/firestore'
 import { THourEntry } from '@/types/THourEntry'
+import { TTravelOption } from '@/views/WriteHoursView.vue'
 
 export const firebaseConfig = {
   apiKey: 'AIzaSyC82Fz-65X0hPMQfd8QObR8N09CBinaBKM',
@@ -15,21 +16,21 @@ export const firebaseConfig = {
 export abstract class firebaseDB {
   private static app
   private static db
+  private static data
+  private static userRef
 
-  // public GetHours(): THourEntry[] {},
   public static async initializeUser(user: any) {
-    // console.log('docSnap', docSnap)
     this.app = initializeApp(firebaseConfig)
     this.db = getFirestore(this.app)
 
-    console.log('user', user)
-    const docRef = doc(this.db, 'user', '/' + user.uid)
-    const docSnap = await getDoc(docRef)
+    console.log('initalize')
+    this.userRef = doc(this.db, 'users', '/' + user.uid)
+    const docSnap = await getDoc(this.userRef)
 
     if (docSnap.exists()) {
       console.log('Document data:', docSnap.data())
+      this.data = docSnap.data()
     } else {
-      // docSnap.data() will be undefined in this case
       console.log('No such document!')
       await this.createUser(user)
     }
@@ -42,5 +43,48 @@ export abstract class firebaseDB {
       travelOptions: [],
       clients: []
     })
+  }
+
+  public static async getHours() {
+    const docSnap = await getDoc(this.userRef)
+    const { hours } = docSnap.data()
+    return hours ? hours : []
+  }
+
+  public static async setHours(hours: THourEntry) {
+    const existingHours = await this.getHours()
+    await setDoc(this.userRef, { hours: [...existingHours, hours] }, { merge: true })
+  }
+
+  public static async addClient(clientName: string) {
+    const existingClients = await this.getClients()
+    await setDoc(
+      this.userRef,
+      { clients: [...existingClients, { name: clientName }] },
+      { merge: true }
+    )
+  }
+
+  public static async getTravelOptions() {
+    const docSnap = await getDoc(this.userRef)
+    const { travelOptions } = docSnap.data()
+    console.log('travelOptions', travelOptions)
+    return travelOptions ? travelOptions : []
+  }
+
+  public static async getClients() {
+    const docSnap = await getDoc(this.userRef)
+    const { clients } = docSnap.data()
+    return clients ? clients : []
+  }
+
+  public static async addTravelOption(travelOption: TTravelOption) {
+    const existingTravelOptions = await this.getTravelOptions()
+    console.log('existingTravelOptions', existingTravelOptions)
+    await setDoc(
+      this.userRef,
+      { travelOptions: [...existingTravelOptions, travelOption] },
+      { merge: true }
+    )
   }
 }

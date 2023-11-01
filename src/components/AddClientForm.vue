@@ -15,6 +15,7 @@
 
 <script lang="ts">
 import { LOCAL_STORAGE_KEY_CLIENTS } from '@/Globals'
+import { firebaseDB } from '@/api/firebase'
 
 export default {
   name: 'AddClientForm',
@@ -33,6 +34,7 @@ export default {
       }
 
       window.localStorage.setItem(LOCAL_STORAGE_KEY_CLIENTS, JSON.stringify(data))
+      firebaseDB.addClient(this.client)
       this.$emit('onSave')
     }
   }

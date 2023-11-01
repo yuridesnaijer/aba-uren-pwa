@@ -121,6 +121,7 @@ import AddTravelOptionForm from '@/components/AddTravelOptionForm.vue'
 import AddClientForm from '@/components/AddClientForm.vue'
 import { LocalStorageDB } from '@/api/localStorage'
 import type { THourEntry } from '@/types/THourEntry'
+import { firebaseDB } from '@/api/firebase'
 
 export type TTravelOption = {
   label: string
@@ -203,6 +204,7 @@ export default defineComponent({
       // @ts-ignore
       const hours: THourEntry = this.hourEntry
       LocalStorageDB.SetHours(hours)
+      firebaseDB.setHours(hours)
       this.reset()
     }
   },

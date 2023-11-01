@@ -21,6 +21,8 @@
 <script lang="ts">
 import { LOCAL_STORAGE_KEY_TRAVEL_OPTIONS } from '@/Globals'
 import { type TTravelOption } from '@/views/WriteHoursView.vue'
+import { firebaseDB } from '@/api/firebase'
+import { tr } from 'vuetify/locale'
 
 export default {
   name: 'AddTravelOptionForm',
@@ -47,6 +49,7 @@ export default {
         LOCAL_STORAGE_KEY_TRAVEL_OPTIONS,
         JSON.stringify([...existingTravelOptions, travelOption as TTravelOption])
       )
+      firebaseDB.addTravelOption(travelOption)
       this.$emit('onSave')
     }
   }
