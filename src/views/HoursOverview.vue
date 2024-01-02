@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container v-if="currentUserName">
     <v-row>
       Selecteer maand:
       <v-select
@@ -111,6 +111,7 @@ import type { TTime } from '@/types/TTime'
 import { LocalStorageDB } from '@/api/localStorage'
 import { DateUtils } from '@/utils/date/dateUtils'
 import { useAuthStore } from '@/stores/authStore'
+import { mapStores } from 'pinia'
 
 export default {
   name: 'HoursOverview',
@@ -126,12 +127,12 @@ export default {
     this.sortWrittenHours()
   },
   computed: {
-    currentUserName: function (): string {
-      const store = useAuthStore()
-      if (!store.user) {
-        return 'no user'
+    ...mapStores(useAuthStore),
+    currentUserName: function (): string | null {
+      if (!this.authStore.user) {
+        return null
       }
-      return store.user?.displayName + "'s"
+      return this.authStore.user?.displayName + "'s"
     },
     filteredHoursOverview: function (): THourEntry[] {
       return this.writtenHours.filter((entry: THourEntry) => {

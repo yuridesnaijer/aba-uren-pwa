@@ -25,7 +25,7 @@ export default {
     }
   },
   methods: {
-    addClient() {
+    async addClient() {
       let data = [this.client]
       const existingClients = window.localStorage.getItem(LOCAL_STORAGE_KEY_CLIENTS)
       if (existingClients) {
@@ -34,7 +34,7 @@ export default {
       }
 
       window.localStorage.setItem(LOCAL_STORAGE_KEY_CLIENTS, JSON.stringify(data))
-      firebaseDB.addClient(this.client)
+      await firebaseDB.addClient(this.client)
       this.$emit('onSave')
     }
   }

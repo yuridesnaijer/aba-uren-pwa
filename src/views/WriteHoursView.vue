@@ -173,14 +173,14 @@ export default defineComponent({
 
       this.travelOptions = JSON.parse(existingTravelOptions)
     },
-    updateClients() {
-      const existingClients = window.localStorage.getItem(LOCAL_STORAGE_KEY_CLIENTS)
+    async updateClients() {
+      const existingClients = await firebaseDB.getClients()
       if (!existingClients) {
         this.clients = []
         return
       }
 
-      this.clients = JSON.parse(existingClients)
+      this.clients = existingClients.map((client) => client.name)
     },
     onTravelOptionAdded() {
       this.isTravelOptionFormOpen = false
