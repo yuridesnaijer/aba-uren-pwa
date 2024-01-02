@@ -45,7 +45,8 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in filteredHoursOverview" :key="item.client + item.date">
+                <tr v-for="item in filteredHoursOverview" :key="item.id">
+                  <td>{{ item.id }}</td>
                   <td>{{ item.client }}</td>
                   <td>{{ $date.formatDate(item.date) }}</td>
                   <td>{{ $date.formatTime(item.startTime) }}</td>
@@ -53,16 +54,14 @@
                   <td>{{ $date.durationString($date.duration(item.startTime, item.endTime)) }}</td>
                   <td>{{ item.travelOption.value }}km / {{ item.travelOption.label }}</td>
                   <td>
-                    <v-btn color="error" @click="showConfirmationDialog = true">verwijderen</v-btn>
+                    <v-btn color="error" @click="startDeleteProcess(item.id)">verwijderen</v-btn>
                     <v-dialog v-model="showConfirmationDialog">
                       <v-card>
                         <v-card-title>
                           Weet je zeker dat je dit wil verwijderen Yasmin??????
                         </v-card-title>
                         <v-card-actions>
-                          <v-btn variant="tonal" color="error" @click="deleteHours(item.id)"
-                            >ja</v-btn
-                          >
+                          <v-btn variant="tonal" color="error" @click="deleteHours()">ja</v-btn>
                           <v-btn @click="showConfirmationDialog = false">nee</v-btn>
                         </v-card-actions>
                       </v-card>
@@ -113,10 +112,16 @@ import { DateUtils } from '@/utils/date/dateUtils'
 
 export default {
   name: 'HoursOverview',
-  data(): { selectedMonth: number; showConfirmationDialog: boolean; writtenHours: THourEntry[] } {
+  data(): {
+    selectedMonth: number
+    showConfirmationDialog: boolean
+    writtenHours: THourEntry[]
+    itemToDelete: string
+  } {
     return {
       selectedMonth: new Date().getMonth(),
       showConfirmationDialog: false,
+      itemToDelete: '',
       writtenHours: []
     }
   },
@@ -142,8 +147,17 @@ export default {
     updateHoursOverview() {
       this.writtenHours = LocalStorageDB.GetHours()
     },
-    deleteHours(id: string) {
-      LocalStorageDB.DeleteHours(id)
+    startDeleteProcess(id: string) {
+      this.itemToDelete = id
+      this.showConfirmationDialog = true
+    },
+    deleteHours() {
+      if (!this.itemToDelete) {
+        this.showConfirmationDialog = false
+        return
+      }
+      LocalStorageDB.DeleteHours(this.itemToDelete)
+      this.itemToDelete = ''
       this.showConfirmationDialog = false
       this.updateHoursOverview()
     },
