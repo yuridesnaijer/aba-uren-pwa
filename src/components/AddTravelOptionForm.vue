@@ -35,21 +35,21 @@ export default {
     }
   },
   methods: {
-    addTravelOption() {
-      const existingTravelOptions: TTravelOption[] = JSON.parse(
-        window.localStorage.getItem(LOCAL_STORAGE_KEY_TRAVEL_OPTIONS) || '[]'
-      )
+    async addTravelOption() {
+      // const existingTravelOptions: TTravelOption[] = JSON.parse(
+      //   window.localStorage.getItem(LOCAL_STORAGE_KEY_TRAVEL_OPTIONS) || '[]'
+      // )
 
       const travelOption: TTravelOption = {
         ...this.travelOption,
         value: parseFloat(this.travelOption.value)
       }
 
-      window.localStorage.setItem(
-        LOCAL_STORAGE_KEY_TRAVEL_OPTIONS,
-        JSON.stringify([...existingTravelOptions, travelOption as TTravelOption])
-      )
-      firebaseDB.addTravelOption(travelOption)
+      // window.localStorage.setItem(
+      //   LOCAL_STORAGE_KEY_TRAVEL_OPTIONS,
+      //   JSON.stringify([...existingTravelOptions, travelOption as TTravelOption])
+      // )
+      await firebaseDB.addTravelOption(travelOption)
       this.$emit('onSave')
     }
   }

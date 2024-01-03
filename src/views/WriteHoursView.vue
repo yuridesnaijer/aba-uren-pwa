@@ -1,5 +1,5 @@
 <template>
-  <v-container class="pb-16">
+  <v-container class="pb-16" v-if="currentUserName">
     <v-row>
       <v-col>
         <v-card>
@@ -122,6 +122,8 @@ import AddClientForm from '@/components/AddClientForm.vue'
 import { LocalStorageDB } from '@/api/localStorage'
 import type { THourEntry } from '@/types/THourEntry'
 import { firebaseDB } from '@/api/firebase'
+import { mapStores } from 'pinia'
+import { useAuthStore } from '@/stores/authStore'
 
 export type TTravelOption = {
   label: string
@@ -164,14 +166,14 @@ export default defineComponent({
     this.updateClients()
   },
   methods: {
-    updateTravelOptions() {
-      const existingTravelOptions = window.localStorage.getItem(LOCAL_STORAGE_KEY_TRAVEL_OPTIONS)
+    async updateTravelOptions() {
+      const existingTravelOptions = await firebaseDB.getTravelOptions() //window.localStorage.getItem(LOCAL_STORAGE_KEY_TRAVEL_OPTIONS)
       if (!existingTravelOptions) {
         this.travelOptions = []
         return
       }
 
-      this.travelOptions = JSON.parse(existingTravelOptions)
+      this.travelOptions = existingTravelOptions
     },
     async updateClients() {
       const existingClients = await firebaseDB.getClients()
@@ -209,6 +211,13 @@ export default defineComponent({
     }
   },
   computed: {
+    ...mapStores(useAuthStore),
+    currentUserName: function (): string | null {
+      if (!this.authStore.user) {
+        return null
+      }
+      return this.authStore.user?.displayName + "'s"
+    },
     isFormValid(): boolean {
       return !Object.values(this.hourEntry).includes(undefined)
     }

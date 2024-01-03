@@ -53,17 +53,22 @@
                   <td>{{ $date.durationString($date.duration(item.startTime, item.endTime)) }}</td>
                   <td>{{ item.travelOption.value }}km / {{ item.travelOption.label }}</td>
                   <td>
-                    <v-btn color="error" @click="showConfirmationDialog = true">verwijderen</v-btn>
-                    <v-dialog v-model="showConfirmationDialog">
+                    <v-btn color="error" @click="showConfirmationDialogForItemId = item.id"
+                      >verwijderen</v-btn
+                    >
+                    <v-dialog v-model="showConfirmationDialogForItemId">
                       <v-card>
                         <v-card-title>
                           Weet je zeker dat je dit wil verwijderen Yasmin??????
                         </v-card-title>
                         <v-card-actions>
-                          <v-btn variant="tonal" color="error" @click="deleteHours(item.id)"
+                          <v-btn
+                            variant="tonal"
+                            color="error"
+                            @click="deleteHours(showConfirmationDialogForItemId)"
                             >ja</v-btn
                           >
-                          <v-btn @click="showConfirmationDialog = false">nee</v-btn>
+                          <v-btn @click="showConfirmationDialogForItemId = null">nee</v-btn>
                         </v-card-actions>
                       </v-card>
                     </v-dialog>
@@ -108,17 +113,21 @@
 <script lang="ts">
 import type { THourEntry } from '@/types/THourEntry'
 import type { TTime } from '@/types/TTime'
-import { LocalStorageDB } from '@/api/localStorage'
 import { DateUtils } from '@/utils/date/dateUtils'
 import { useAuthStore } from '@/stores/authStore'
 import { mapStores } from 'pinia'
+import { firebaseDB } from '@/api/firebase'
 
 export default {
   name: 'HoursOverview',
-  data(): { selectedMonth: number; showConfirmationDialog: boolean; writtenHours: THourEntry[] } {
+  data(): {
+    selectedMonth: number
+    showConfirmationDialogForItemId: string | null
+    writtenHours: THourEntry[]
+  } {
     return {
       selectedMonth: new Date().getMonth(),
-      showConfirmationDialog: false,
+      showConfirmationDialogForItemId: null,
       writtenHours: []
     }
   },
@@ -148,12 +157,12 @@ export default {
         return new Date(a.date) - new Date(b.date)
       })
     },
-    updateHoursOverview() {
-      this.writtenHours = LocalStorageDB.GetHours()
+    async updateHoursOverview() {
+      this.writtenHours = await firebaseDB.getHours()
     },
     deleteHours(id: string) {
-      LocalStorageDB.DeleteHours(id)
-      this.showConfirmationDialog = false
+      firebaseDB.deleteHourEntry(id)
+      this.showConfirmationDialogForItemId = null
       this.updateHoursOverview()
     },
     totalWrittenHoursInSecondsPerClient(hourEntries: THourEntry[]): { [key: string]: number } {

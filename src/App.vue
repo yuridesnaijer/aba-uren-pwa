@@ -19,8 +19,9 @@ if (!auth.currentUser) {
     callbacks: {
       signInSuccessWithAuthResult(authResult: any, redirectUrl?: string): boolean {
         store.setUser(authResult.user)
-        firebaseDB.initializeUser(authResult.user)
-        return false
+        firebaseDB.initializeUser(authResult.user).then(() => {
+          return false
+        })
       }
     }
   })
@@ -34,7 +35,7 @@ if (!auth.currentUser) {
       <RouterView />
     </v-main>
     <v-bottom-navigation>
-      <v-btn @click="$router.push('/')" value="recent">
+      <v-btn @click="$router.push('/overzicht')" value="recent">
         <v-icon>mdi-history</v-icon>
         Overzicht
       </v-btn>

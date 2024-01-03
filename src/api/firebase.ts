@@ -23,15 +23,12 @@ export abstract class firebaseDB {
     this.app = initializeApp(firebaseConfig)
     this.db = getFirestore(this.app)
 
-    console.log('initalize')
     this.userRef = doc(this.db, 'users', '/' + user.uid)
     const docSnap = await getDoc(this.userRef)
 
     if (docSnap.exists()) {
-      console.log('Document data:', docSnap.data())
       this.data = docSnap.data()
     } else {
-      console.log('No such document!')
       await this.createUser(user)
     }
   }
@@ -45,15 +42,28 @@ export abstract class firebaseDB {
     })
   }
 
-  public static async getHours() {
+  public static async getHours(): Promise<Array<THourEntry>> {
     const docSnap = await getDoc(this.userRef)
     const { hours } = docSnap.data()
-    return hours ? hours : []
+
+    return hours
+      ? hours.map((entry) => {
+          return { ...entry, date: entry.date.toDate() }
+        })
+      : []
   }
 
   public static async setHours(hours: THourEntry) {
     const existingHours = await this.getHours()
     await setDoc(this.userRef, { hours: [...existingHours, hours] }, { merge: true })
+  }
+
+  public static async deleteHourEntry(id: string) {
+    const existingHours = await this.getHours()
+    const indexToDelete = existingHours.findIndex((element) => element.id === id)
+    const remainingHourEntries = existingHours.splice(indexToDelete, 1)
+
+    await setDoc(this.userRef, { hours: remainingHourEntries }, { merge: true })
   }
 
   public static async addClient(clientName: string) {
@@ -68,7 +78,6 @@ export abstract class firebaseDB {
   public static async getTravelOptions() {
     const docSnap = await getDoc(this.userRef)
     const { travelOptions } = docSnap.data()
-    console.log('travelOptions', travelOptions)
     return travelOptions ? travelOptions : []
   }
 
@@ -79,6 +88,7 @@ export abstract class firebaseDB {
   }
 
   public static async addTravelOption(travelOption: TTravelOption) {
+    console.log('travelOption', travelOption)
     const existingTravelOptions = await this.getTravelOptions()
     console.log('existingTravelOptions', existingTravelOptions)
     await setDoc(
