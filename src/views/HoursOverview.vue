@@ -46,7 +46,6 @@
               </thead>
               <tbody>
                 <tr v-for="item in filteredHoursOverview" :key="item.id">
-                  <td>{{ item.id }}</td>
                   <td>{{ item.client }}</td>
                   <td>{{ $date.formatDate(item.date) }}</td>
                   <td>{{ $date.formatTime(item.startTime) }}</td>
