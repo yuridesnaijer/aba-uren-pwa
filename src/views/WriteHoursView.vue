@@ -96,6 +96,16 @@
                   </v-dialog>
                 </v-col>
               </v-row>
+              <v-row>
+                <v-col>
+                  <v-textarea
+                    v-model="hourEntry.description"
+                    label="omschrijving"
+                    variant="outlined"
+                    dense
+                  />
+                </v-col>
+              </v-row>
 
               <v-btn
                 :disabled="!isFormValid"
@@ -154,7 +164,8 @@ export default defineComponent({
         date: undefined,
         startTime: undefined,
         endTime: undefined,
-        travelOption: undefined
+        travelOption: undefined,
+        description: undefined
       }
     }
   },
@@ -195,7 +206,8 @@ export default defineComponent({
         date: undefined,
         startTime: undefined,
         endTime: undefined,
-        travelOption: undefined
+        travelOption: undefined,
+        description: undefined
       }
     },
     addHours() {
@@ -208,7 +220,9 @@ export default defineComponent({
   },
   computed: {
     isFormValid(): boolean {
-      return !Object.values(this.hourEntry).includes(undefined)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { description, ...entryWithoutDescription } = this.hourEntry
+      return !Object.values(entryWithoutDescription).includes(undefined)
     }
   }
 })

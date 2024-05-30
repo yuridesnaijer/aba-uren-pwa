@@ -42,6 +42,7 @@
                   <th class="text-left">Eindtijd</th>
                   <th class="text-left">tijd</th>
                   <th class="text-left">Reisafstand</th>
+                  <th class="text-left">Omschrijving</th>
                 </tr>
               </thead>
               <tbody>
@@ -52,6 +53,7 @@
                   <td>{{ $date.formatTime(item.endTime) }}</td>
                   <td>{{ $date.durationString($date.duration(item.startTime, item.endTime)) }}</td>
                   <td>{{ item.travelOption.value }}km / {{ item.travelOption.label }}</td>
+                  <td>{{ item.description }}</td>
                   <td>
                     <v-btn color="error" @click="startDeleteProcess(item.id)">verwijderen</v-btn>
                     <v-dialog v-model="showConfirmationDialog">

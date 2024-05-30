@@ -8,4 +8,5 @@ export type THourEntry = {
   endTime: TTime
   date: Date
   travelOption: TTravelOption
+  description?: string
 }
