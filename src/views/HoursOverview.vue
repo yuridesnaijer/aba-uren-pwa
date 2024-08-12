@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container v-if="currentUserName">
     <v-row>
       Selecteer maand:
       <v-select
@@ -29,7 +29,7 @@
         <v-card>
           <v-card-title class="text-center">
             <span class="text-pink text-h6">
-              Yasmin's uren overzicht <v-icon icon="mdi-heart"></v-icon>
+              {{ currentUserName }} uren overzicht <v-icon icon="mdi-heart"></v-icon>
             </span>
           </v-card-title>
           <v-card-text>
@@ -42,28 +42,33 @@
                   <th class="text-left">Eindtijd</th>
                   <th class="text-left">tijd</th>
                   <th class="text-left">Reisafstand</th>
-                  <th class="text-left">Omschrijving</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in filteredHoursOverview" :key="item.id">
+                <tr v-for="item in filteredHoursOverview" :key="item.client + item.date">
                   <td>{{ item.client }}</td>
                   <td>{{ $date.formatDate(item.date) }}</td>
                   <td>{{ $date.formatTime(item.startTime) }}</td>
                   <td>{{ $date.formatTime(item.endTime) }}</td>
                   <td>{{ $date.durationString($date.duration(item.startTime, item.endTime)) }}</td>
                   <td>{{ item.travelOption.value }}km / {{ item.travelOption.label }}</td>
-                  <td>{{ item.description }}</td>
                   <td>
-                    <v-btn color="error" @click="startDeleteProcess(item.id)">verwijderen</v-btn>
-                    <v-dialog v-model="showConfirmationDialog">
+                    <v-btn color="error" @click="showConfirmationDialogForItemId = item.id"
+                      >verwijderen</v-btn
+                    >
+                    <v-dialog v-model="showConfirmationDialogForItemId">
                       <v-card>
                         <v-card-title>
                           Weet je zeker dat je dit wil verwijderen Yasmin??????
                         </v-card-title>
                         <v-card-actions>
-                          <v-btn variant="tonal" color="error" @click="deleteHours()">ja</v-btn>
-                          <v-btn @click="showConfirmationDialog = false">nee</v-btn>
+                          <v-btn
+                            variant="tonal"
+                            color="error"
+                            @click="deleteHours(showConfirmationDialogForItemId)"
+                            >ja</v-btn
+                          >
+                          <v-btn @click="showConfirmationDialogForItemId = null">nee</v-btn>
                         </v-card-actions>
                       </v-card>
                     </v-dialog>
@@ -108,21 +113,21 @@
 <script lang="ts">
 import type { THourEntry } from '@/types/THourEntry'
 import type { TTime } from '@/types/TTime'
-import { LocalStorageDB } from '@/api/localStorage'
 import { DateUtils } from '@/utils/date/dateUtils'
+import { useAuthStore } from '@/stores/authStore'
+import { mapStores } from 'pinia'
+import { firebaseDB } from '@/api/firebase'
 
 export default {
   name: 'HoursOverview',
   data(): {
     selectedMonth: number
-    showConfirmationDialog: boolean
+    showConfirmationDialogForItemId: string | null
     writtenHours: THourEntry[]
-    itemToDelete: string
   } {
     return {
       selectedMonth: new Date().getMonth(),
-      showConfirmationDialog: false,
-      itemToDelete: '',
+      showConfirmationDialogForItemId: null,
       writtenHours: []
     }
   },
@@ -131,6 +136,13 @@ export default {
     this.sortWrittenHours()
   },
   computed: {
+    ...mapStores(useAuthStore),
+    currentUserName: function (): string | null {
+      if (!this.authStore.user) {
+        return null
+      }
+      return this.authStore.user?.displayName + "'s"
+    },
     filteredHoursOverview: function (): THourEntry[] {
       return this.writtenHours.filter((entry: THourEntry) => {
         if (new Date(entry.date).getMonth() === this.selectedMonth) {
@@ -145,21 +157,12 @@ export default {
         return new Date(a.date) - new Date(b.date)
       })
     },
-    updateHoursOverview() {
-      this.writtenHours = LocalStorageDB.GetHours()
+    async updateHoursOverview() {
+      this.writtenHours = await firebaseDB.getHours()
     },
-    startDeleteProcess(id: string) {
-      this.itemToDelete = id
-      this.showConfirmationDialog = true
-    },
-    deleteHours() {
-      if (!this.itemToDelete) {
-        this.showConfirmationDialog = false
-        return
-      }
-      LocalStorageDB.DeleteHours(this.itemToDelete)
-      this.itemToDelete = ''
-      this.showConfirmationDialog = false
+    deleteHours(id: string) {
+      firebaseDB.deleteHourEntry(id)
+      this.showConfirmationDialogForItemId = null
       this.updateHoursOverview()
     },
     totalWrittenHoursInSecondsPerClient(hourEntries: THourEntry[]): { [key: string]: number } {

@@ -1,4 +1,4 @@
-import { TTime } from '@/types/TTime'
+import { type TTime } from '@/types/TTime'
 
 export const DateUtils = {
   formatDate(_date: Date): string {

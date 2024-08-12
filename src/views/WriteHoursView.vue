@@ -1,5 +1,5 @@
 <template>
-  <v-container class="pb-16">
+  <v-container class="pb-16" v-if="currentUserName">
     <v-row>
       <v-col>
         <v-card>
@@ -131,6 +131,9 @@ import AddTravelOptionForm from '@/components/AddTravelOptionForm.vue'
 import AddClientForm from '@/components/AddClientForm.vue'
 import { LocalStorageDB } from '@/api/localStorage'
 import type { THourEntry } from '@/types/THourEntry'
+import { firebaseDB } from '@/api/firebase'
+import { mapStores } from 'pinia'
+import { useAuthStore } from '@/stores/authStore'
 
 export type TTravelOption = {
   label: string
@@ -174,23 +177,23 @@ export default defineComponent({
     this.updateClients()
   },
   methods: {
-    updateTravelOptions() {
-      const existingTravelOptions = window.localStorage.getItem(LOCAL_STORAGE_KEY_TRAVEL_OPTIONS)
+    async updateTravelOptions() {
+      const existingTravelOptions = await firebaseDB.getTravelOptions() //window.localStorage.getItem(LOCAL_STORAGE_KEY_TRAVEL_OPTIONS)
       if (!existingTravelOptions) {
         this.travelOptions = []
         return
       }
 
-      this.travelOptions = JSON.parse(existingTravelOptions)
+      this.travelOptions = existingTravelOptions
     },
-    updateClients() {
-      const existingClients = window.localStorage.getItem(LOCAL_STORAGE_KEY_CLIENTS)
+    async updateClients() {
+      const existingClients = await firebaseDB.getClients()
       if (!existingClients) {
         this.clients = []
         return
       }
 
-      this.clients = JSON.parse(existingClients)
+      this.clients = existingClients.map((client) => client.name)
     },
     onTravelOptionAdded() {
       this.isTravelOptionFormOpen = false
@@ -215,10 +218,18 @@ export default defineComponent({
       // @ts-ignore
       const hours: THourEntry = this.hourEntry
       LocalStorageDB.SetHours(hours)
+      firebaseDB.setHours(hours)
       this.reset()
     }
   },
   computed: {
+    ...mapStores(useAuthStore),
+    currentUserName: function (): string | null {
+      if (!this.authStore.user) {
+        return null
+      }
+      return this.authStore.user?.displayName + "'s"
+    },
     isFormValid(): boolean {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { description, ...entryWithoutDescription } = this.hourEntry
