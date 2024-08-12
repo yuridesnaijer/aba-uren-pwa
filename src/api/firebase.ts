@@ -1,7 +1,16 @@
 import { initializeApp } from 'firebase/app'
-import { getFirestore, doc, getDoc, setDoc, collection } from 'firebase/firestore'
-import { THourEntry } from '@/types/THourEntry'
-import { TTravelOption } from '@/views/WriteHoursView.vue'
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  Firestore,
+  type DocumentData,
+  type DocumentReference
+} from 'firebase/firestore'
+import { type THourEntry } from '@/types/THourEntry'
+import { type TTravelOption } from '@/views/WriteHoursView.vue'
 
 export const firebaseConfig = {
   apiKey: 'AIzaSyC82Fz-65X0hPMQfd8QObR8N09CBinaBKM',
@@ -14,10 +23,10 @@ export const firebaseConfig = {
 }
 
 export abstract class firebaseDB {
-  private static app
-  private static db
-  private static data
-  private static userRef
+  private static app: any
+  private static db: Firestore
+  private static data: unknown
+  private static userRef: DocumentReference<DocumentData, DocumentData>
 
   public static async initializeUser(user: any) {
     this.app = initializeApp(firebaseConfig)
@@ -44,10 +53,10 @@ export abstract class firebaseDB {
 
   public static async getHours(): Promise<Array<THourEntry>> {
     const docSnap = await getDoc(this.userRef)
-    const { hours } = docSnap.data()
+    const { hours } = docSnap.data() as any
 
     return hours
-      ? hours.map((entry) => {
+      ? hours.map((entry: any) => {
           return { ...entry, date: entry.date.toDate() }
         })
       : []
@@ -77,20 +86,20 @@ export abstract class firebaseDB {
 
   public static async getTravelOptions() {
     const docSnap = await getDoc(this.userRef)
+    // @ts-ignore
     const { travelOptions } = docSnap.data()
     return travelOptions ? travelOptions : []
   }
 
   public static async getClients() {
     const docSnap = await getDoc(this.userRef)
+    // @ts-ignore
     const { clients } = docSnap.data()
     return clients ? clients : []
   }
 
   public static async addTravelOption(travelOption: TTravelOption) {
-    console.log('travelOption', travelOption)
     const existingTravelOptions = await this.getTravelOptions()
-    console.log('existingTravelOptions', existingTravelOptions)
     await setDoc(
       this.userRef,
       { travelOptions: [...existingTravelOptions, travelOption] },

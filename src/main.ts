@@ -29,6 +29,7 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(router)
 app.use(vuetify)
+//@ts-ignore
 app.use(date)
 app.component('VueDatePicker', VueDatePicker)
 

@@ -17,11 +17,13 @@ if (!auth.currentUser) {
   ui.start('#firebaseui-auth-container', {
     signInOptions: [firebase.auth.EmailAuthProvider.PROVIDER_ID],
     callbacks: {
-      signInSuccessWithAuthResult(authResult: any, redirectUrl?: string): boolean {
+      signInSuccessWithAuthResult(authResult: any): boolean {
         store.setUser(authResult.user)
         firebaseDB.initializeUser(authResult.user).then(() => {
           return false
         })
+
+        return true
       }
     }
   })
